@@ -1,14 +1,13 @@
 //
 //  Extensions.swift
-//  Endpoints Requests
+//  
 //
-//  Created by Pedro Giuliano Farina on 09/12/19.
-//  Copyright © 2019 Pedro Giuliano Farina. All rights reserved.
+//  Created by Pedro Giuliano Farina on 08/04/20.
 //
 
 import Foundation
 
-extension Dictionary {
+internal extension Dictionary {
     func percentEscaped() -> String {
         return map { (key, value) in
             let escapedKey = "\(key)".addingPercentEncoding(withAllowedCharacters: .urlQueryValueAllowed) ?? ""
@@ -19,7 +18,7 @@ extension Dictionary {
     }
 }
 
-extension CharacterSet {
+internal extension CharacterSet {
     static let urlQueryValueAllowed: CharacterSet = {
         let generalDelimitersToEncode = ":#[]@" // does not include "?" or "/" due to RFC 3986 - Section 3.4
         let subDelimitersToEncode = "!$&'()*+,;="
@@ -29,5 +28,4 @@ extension CharacterSet {
         return allowed
     }()
 }
-
 

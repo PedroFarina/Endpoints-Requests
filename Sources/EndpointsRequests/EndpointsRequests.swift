@@ -8,7 +8,7 @@
 
 import Foundation
 
-private struct NilCodable: Codable {
+fileprivate struct NilCodable: Codable {
 }
 
 public enum HttpMethods: String {
@@ -24,7 +24,7 @@ public enum TaskAnswer<T> {
     case error(Error)
 }
 
-public class EndpointsRequests {
+final class EndpointsRequests {
     private init() {
     }
 
@@ -46,7 +46,7 @@ public class EndpointsRequests {
      - Parameter header: The request's header, separated by key and values.
      - Parameter completion: The block of code that will execute after the get request is executed.
      */
-    public static func getRequest(url: String, header: [String: String]? = nil, completion: @escaping (TaskAnswer<Any>) -> Void) {
+    public static func getRequest(url: String, header: [String: String]? = nil, completion: ((TaskAnswer<Any>) -> Void)? = nil) {
         getRequest(url: url, decodableType: NilCodable.self, header: header, completion: completion)
     }
 
@@ -64,11 +64,11 @@ public class EndpointsRequests {
         url: String,
         decodableType: T.Type,
         header: [String: String]? = nil,
-        completion: @escaping (TaskAnswer<Any>) -> Void ) {
+        completion: ((TaskAnswer<Any>) -> Void)? = nil ) {
 
         //Creating a request and making sure it exists.
         guard let request = createRequest(url: url, method: .get) else {
-            completion(TaskAnswer.error(NotURLError(title: nil, description: "Couldn't parse argument to URL")))
+            completion?(TaskAnswer.error(NotURLError(title: nil, description: "Couldn't parse argument to URL")))
             return
         }
 
@@ -97,7 +97,7 @@ public class EndpointsRequests {
         method: HttpMethods = .post,
         header: [String: String]? = nil,
         params: [String: Any],
-        completion: @escaping (TaskAnswer<Any>) -> Void) {
+        completion: ((TaskAnswer<Any>) -> Void)? = nil) {
         postRequest(url: url, params: params, decodableType: NilCodable.self, completion: completion)
     }
 
@@ -119,11 +119,11 @@ public class EndpointsRequests {
         header: [String: String]? = nil,
         params: [String: Any],
         decodableType: T.Type,
-        completion: @escaping (TaskAnswer<Any>) -> Void) {
+        completion: ((TaskAnswer<Any>) -> Void)? = nil) {
 
         //Creating a request and making sure it exists.
         guard let request = createRequest(url: url, method: method) else {
-            completion(TaskAnswer.error(NotURLError(title: nil, description: "Couldn't parse argument to URL")))
+            completion?(TaskAnswer.error(NotURLError(title: nil, description: "Couldn't parse argument to URL")))
             return
         }
 
@@ -158,11 +158,11 @@ public class EndpointsRequests {
         header: [String: String]? = nil,
         params: P,
         decodableType: T.Type,
-        completion: @escaping (TaskAnswer<Any>) -> Void) {
+        completion: ((TaskAnswer<Any>) -> Void)? = nil) {
 
         //Creating a request and making sure it exists.
         guard let request = createRequest(url: url, method: method) else {
-            completion(TaskAnswer.error(NotURLError(title: nil, description: "Couldn't parse argument to URL")))
+            completion?(TaskAnswer.error(NotURLError(title: nil, description: "Couldn't parse argument to URL")))
             return
         }
 
@@ -175,7 +175,7 @@ public class EndpointsRequests {
         do {
             request.httpBody = try JSONEncoder().encode(params)
         } catch {
-            completion(TaskAnswer.error(InvalidCodableError(title: nil, description: "Couldn't encode object to JSON")))
+            completion?(TaskAnswer.error(InvalidCodableError(title: nil, description: "Couldn't encode object to JSON")))
         }
 
         //Creating the post task with the request, and executing it.
@@ -192,24 +192,22 @@ public class EndpointsRequests {
      - Parameter completion: The block of code that will execute after the get request is executed.
      */
     public static func createTask<T: Decodable>(request: URLRequest, decodableType: T.Type, completion:
-        @escaping (TaskAnswer<Any>) -> Void) -> URLSessionDataTask {
+        ((TaskAnswer<Any>) -> Void)? = nil) -> URLSessionDataTask {
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard let data = data, error == nil else {
-                completion(TaskAnswer.result([:]))
+                completion?(TaskAnswer.result([:]))
                 return
             }
             do {
-                // A resposta chegou
                 if decodableType != NilCodable.self {
                     let response = try JSONDecoder().decode(decodableType, from: data)
-                    completion(TaskAnswer.result(response))
+                    completion?(TaskAnswer.result(response))
                 } else {
                     let response = try JSONSerialization.jsonObject(with: data, options: [])
-                    completion(TaskAnswer.result(response))
+                    completion?(TaskAnswer.result(response))
                 }
             } catch let error as NSError {
-                // Houve um erro na conversão de tipo ou comunicaçao com servidor
-                completion(TaskAnswer.error(error))
+                completion?(TaskAnswer.error(error))
             }
         }
         return task
