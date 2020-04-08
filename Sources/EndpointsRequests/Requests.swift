@@ -24,7 +24,7 @@ public enum TaskAnswer<T> {
     case error(Error)
 }
 
-final class EndpointsRequests {
+public final class Requests {
     private init() {
     }
 
