@@ -36,11 +36,3 @@ public struct InvalidCodableError: MyErrorProtocol {
         self._description = description
     }
 }
-
-
-public class test {
-    public func kk() {
-        EndpointsRequests.getRequest(url: "XD", completion: nil)
-    }
-}
-
