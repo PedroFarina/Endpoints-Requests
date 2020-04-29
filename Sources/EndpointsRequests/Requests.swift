@@ -203,8 +203,7 @@ public final class Requests {
                     let response = try JSONDecoder().decode(decodableType, from: data)
                     completion?(TaskAnswer.result(response))
                 } else {
-                    let response = try JSONSerialization.jsonObject(with: data, options: [])
-                    completion?(TaskAnswer.result(response))
+                    completion?(TaskAnswer.result(data))
                 }
             } catch let error as NSError {
                 completion?(TaskAnswer.error(error))
