@@ -212,6 +212,7 @@ public final class Requests {
 
         //Encoding the parameter to the httpBody.
         do {
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = try JSONEncoder().encode(params)
         } catch {
             completion?(TaskAnswer.error(InvalidCodableError(title: nil, description: "Couldn't encode object to JSON")))
