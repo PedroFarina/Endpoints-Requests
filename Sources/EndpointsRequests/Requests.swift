@@ -140,7 +140,18 @@ public final class Requests {
         createTask(request: request as URLRequest, decodableType: decodableType, completion: completion).resume()
     }
 
-    public static func PostRequest<P: Encodable>(
+    /**
+     This function performs a post request, transforms its answer into a Decodable, and triggers a completion handler with its answer.
+
+     - Warning: This method is asyncronous.
+
+     - Parameter url: The url address to make the requisition.
+     - Parameter method: The http method in the request.
+     - Parameter header: The request's header, separated by key and values.
+     - Parameter params: The request's body, separated by key and values.
+     - Parameter completion: The block of code that will execute after the get request is executed.
+     */
+    public static func postRequest<P: Encodable>(
         url:String,
         method: HttpMethods = .post,
         header: [String: String]? = nil,
