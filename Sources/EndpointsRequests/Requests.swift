@@ -140,6 +140,33 @@ public final class Requests {
         createTask(request: request as URLRequest, decodableType: decodableType, completion: completion).resume()
     }
 
+    public static func PostRequest<P: Encodable>(
+        url:String,
+        method: HttpMethods = .post,
+        header: [String: String]? = nil,
+        params: P,
+        completion: ((TaskAnswer<Any>) -> Void)? = nil) {
+        guard let request = createRequest(url: url, method: method) else {
+            completion?(TaskAnswer.error(NotURLError(title: nil, description: "Couldn't parse argument to URL")))
+            return
+        }
+
+        //Adding each header parameter to the request.
+        for headerParam in header ?? [:] {
+            request.addValue(headerParam.value, forHTTPHeaderField: headerParam.key)
+        }
+
+        //Encoding the parameter to the httpBody.
+        do {
+            request.httpBody = try JSONEncoder().encode(params)
+        } catch {
+            completion?(TaskAnswer.error(InvalidCodableError(title: nil, description: "Couldn't encode object to JSON")))
+        }
+
+        //Creating the post task with the request, and executing it.
+        createTask(request: request as URLRequest, decodableType: NilCodable.self, completion: completion).resume()
+    }
+
     /**
      This function performs a post request, transforms its answer into a Decodable, and triggers a completion handler with its answer.
 
